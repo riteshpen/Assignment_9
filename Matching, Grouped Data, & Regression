@@ -144,7 +144,8 @@ coefficients <- coef(model) %>%
 confidence_intervals <- confint(model)
 
 results_table <- cbind(coefficients, confidence_intervals)
-rownames(results_table) <- c("Intercept", "OpeningMedium", "OpeningLarge", "SolderThin", "OpeningMedium:SolderThin", "OpeningLarge:SolderThin")
+rownames(results_table) <- c("Intercept", "OpeningMedium", "OpeningLarge", "SolderThin", "OpeningMedium:SolderThin", 
+"OpeningLarge:SolderThin") 
 colnames(results_table) <- c("Estimate", "Lower 95% CI", "Upper 95% CI")
 
 print(results_table)
@@ -154,10 +155,16 @@ print(results_table)
 
 ## Part C
 
-y = 0.39 + 2.41 \* OpeningMedium + 5.13 \* OpeningLarge + 2.28 \* SolderThin - 0.74 \* OpeningMedium \* Solder Thin + 9.65 \* OpeningLarge \* SolderThin
+y = 0.39 + 2.41 \* OpeningMedium + 5.13 \* OpeningLarge + 2.28 \* SolderThin - 0.74 \* OpeningMedium \* Solder Thin + 
+9.65 \* OpeningLarge \* SolderThin
 
-The baseline number of skips on the circuit board is most likely 0. The main effect of Opening Medium is 2.41 skips and the main effect of Opening Large and Solder Thin is 5.13 and 2.28 skips respectively. The interaction effect of Opening Medium and Solder Thin is -0.74 meaning when the size of the opening on the solder gun is medium and the the thickness is thin, you would expect about 0.74 less skips. The interaction effecting of Opening Large and Solder Thin is 9.65 so when the size of opening of gun is large and thickness is then, you would expect 9.65 more skips.
+The baseline number of skips on the circuit board is most likely 0. The main effect of Opening Medium is 2.41 skips 
+and the main effect of Opening Large and Solder Thin is 5.13 and 2.28 skips respectively. The interaction effect 
+of Opening Medium and Solder Thin is -0.74 meaning when the size of the opening on the solder gun is medium and the 
+thickness is thin, you would expect about 0.74 less skips. The interaction effecting of Opening Large and Solder Thin 
+is 9.65 so when the size of opening of gun is large and thickness is then, you would expect 9.65 more skips.
 
 ## Part D
 
-A large opening size and a thick thickness of the alloy. This combination will minimize the number of skips because the larger the opening size the fewer the number of skips and the thicker the fewer the number of skips and vise versa.
+A large opening size and a thick thickness of the alloy. This combination will minimize the number of skips because 
+the larger the opening size the fewer the number of skips and the thicker the fewer the number of skips and vise versa.
