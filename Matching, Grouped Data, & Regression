@@ -1,0 +1,163 @@
+---
+title: "Homework_9"
+output: html_document
+date: "2024-04-11"
+author: "Ritesh Penumatsa"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(mosaic)
+library(MatchIt)
+library(moderndive)
+
+```
+
+# Question 1
+
+## Part A
+
+```{r}
+turnout <- read.csv("turnout.csv")
+
+contingency_table <- xtabs(~ GOTV_call + voted1998, data = turnout)
+
+prop_table <- prop.table(contingency_table, margin = 2)
+
+print(prop_table)
+
+recieve_GOTV_call_voted_98 <- prop_table[2,2]
+no_recieve_GOTV_call_voted_98 <- prop_table[1,2]
+
+print(recieve_GOTV_call_voted_98)
+print(no_recieve_GOTV_call_voted_98)
+
+
+prop.test(GOTV_call ~ voted1998, data=turnout)
+
+
+
+
+```
+
+## Part B
+
+```{r}
+age_groups <- cut(turnout$AGE, breaks = c(18, 30, 45, 60, Inf),
+                  labels = c("18-30", "31-45", "46-60", "61+"),
+                  right = FALSE)
+
+
+table(turnout$voted1996, by=turnout$GOTV_call)
+table(age_groups, by=turnout$GOTV_call)
+table(turnout$MAJORPTY, turnout$GOTV_call)
+
+turnout <- transform(turnout, age_groups = cut(AGE, breaks = c(18, 30, 45, 60, Inf),
+                                               labels = c("18-30", "31-45", "46-60", "61+"),
+                                               right = FALSE))
+turnout$age_groups <- factor(turnout$age_groups)
+
+ggplot(turnout, aes(x = GOTV_call, y = AGE, fill = age_groups)) +
+  geom_boxplot() +
+  labs(x = "GOTV Call", y = "Age", fill = "Age Groups")
+
+turnout$MAJORPTY <- factor(turnout$MAJORPTY)
+
+ggplot(turnout, aes(x=MAJORPTY, fill=GOTV_call)) + geom_bar(position = "dodge", 
+                  stat = "count") +
+ labs(x = "MAJORPTY", y = "GOTV_call",)
+
+turnout$voted1996 <- factor(turnout$voted1996)
+
+ggplot(turnout, aes(x=GOTV_call, fill=voted1996)) + geom_bar(position = "dodge", 
+                  stat = "count") +
+ labs(x = "voted1996", y = "GOTV Call")
+
+```
+
+## Part C
+
+```{r}
+model <- glm(GOTV_call ~ voted1996 + AGE + MAJORPTY, data=turnout, family="binomial")
+
+matched_data <- matchit(GOTV_call ~ voted1996 + AGE + MAJORPTY, data = turnout, method = "nearest", ratio = 5)
+
+
+summary(matched_data)
+
+matched_dataset <- match.data(matched_data)
+
+
+contingency_table <- table(matched_dataset$GOTV_call, matched_dataset$voted1998)
+
+prop_table <- prop.table(contingency_table, margin = 2)
+receive_GOTV_call_voted_98 <- prop_table[2, 2]
+no_receive_GOTV_call_voted_98 <- prop_table[1, 2]
+
+prop.test(GOTV_call ~ voted1998, data=matched_dataset)
+```
+
+The probability of receiving a government call and voted in the 1998 election is about double
+
+of the probability of receiving a government call without voting in the 1998 election. In our
+
+analysis, we considered three confounding variables: voting in 1996, age, and majorpty. 71
+
+received a government call of those who did not in 1996 while 176 received a government call
+
+while voting in 1996. The older the person is the more likely to person would receive a
+
+government call. A person with majorpty is three times as likely to receive a government call
+
+than someone without.
+
+# Question 2
+
+## Part A
+
+```{r}
+solder <- read.csv("solder.csv")
+
+ggplot(solder, aes(x = Opening, y = skips)) +
+                geom_boxplot(fill = "white", color = "black") +
+                labs(title = "Relationship between Opening Size and Skips",
+                     x = "Opening Size",
+                     y = "Number of Skips")
+
+ggplot(solder, aes(x = Solder, y = skips)) +
+                geom_boxplot(fill = "white", color = "black") +
+                labs(title = "Relationship between Solder Thickness and Skips",
+                     x = "Solder Thickness",
+                     y = "Number of Skips")
+
+
+```
+
+## Part B
+
+```{r}
+model <- lm(skips ~ Opening * Solder, data = solder)
+coefficients <- coef(model) %>% 
+  round(2)
+confidence_intervals <- confint(model)
+
+results_table <- cbind(coefficients, confidence_intervals)
+rownames(results_table) <- c("Intercept", "OpeningMedium", "OpeningLarge", "SolderThin", "OpeningMedium:SolderThin", "OpeningLarge:SolderThin")
+colnames(results_table) <- c("Estimate", "Lower 95% CI", "Upper 95% CI")
+
+print(results_table)
+
+
+```
+
+## Part C
+
+y = 0.39 + 2.41 \* OpeningMedium + 5.13 \* OpeningLarge + 2.28 \* SolderThin - 0.74 \* OpeningMedium \* Solder Thin + 9.65 \* OpeningLarge \* SolderThin
+
+The baseline number of skips on the circuit board is most likely 0. The main effect of Opening Medium is 2.41 skips and the main effect of Opening Large and Solder Thin is 5.13 and 2.28 skips respectively. The interaction effect of Opening Medium and Solder Thin is -0.74 meaning when the size of the opening on the solder gun is medium and the the thickness is thin, you would expect about 0.74 less skips. The interaction effecting of Opening Large and Solder Thin is 9.65 so when the size of opening of gun is large and thickness is then, you would expect 9.65 more skips.
+
+## Part D
+
+A large opening size and a thick thickness of the alloy. This combination will minimize the number of skips because the larger the opening size the fewer the number of skips and the thicker the fewer the number of skips and vise versa.
